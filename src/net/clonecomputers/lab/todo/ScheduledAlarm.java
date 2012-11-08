@@ -6,8 +6,10 @@ import java.util.GregorianCalendar;
 
 public class ScheduledAlarm {
 
-	public static final int WILDCARD = 60;
 	public static final int NO_VALUE = 0;
+	public static final int WILDCARD = 60;
+	
+	private final Calendar NOW = new GregorianCalendar();
 	
 	private final int ye;
 	private final int mo;
@@ -24,24 +26,18 @@ public class ScheduledAlarm {
 	}
 	
 	Date getSoonestDate() {
-		Calendar curTime = new GregorianCalendar();
-		curTime.setTime(new Date());
-		int year;
-		int month;
-		int day;
-		int hour;
-		int minute;
-		if(mi != WILDCARD) {
-			minute = mi;
+		Calendar alarmTime = new GregorianCalendar();
+		NOW.setTime(new Date());
+		alarmTime.set(ye,mo,da,ho,mi);
+		if(ye != 60) {
+			return NOW.getTime().before(alarmTime.getTime()) ? alarmTime.getTime() : null;
 		} else {
-			minute = curTime.get(Calendar.MINUTE) + 1;
+			int i = 0;
+			do {
+				alarmTime.set(Calendar.YEAR, NOW.get(Calendar.YEAR+i++));
+			} while(NOW.getTime().before(alarmTime.getTime()));
+			return alarmTime.getTime();
 		}
-		if(ho != WILDCARD) {
-			hour = ho;
-		} else {
-			hour = curTime.get(Calendar.HOUR_OF_DAY);
-		}
-				
 	}
 
 }
