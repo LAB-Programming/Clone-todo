@@ -26,18 +26,17 @@ public class ScheduledAlarm {
 	}
 	
 	Date getSoonestDate() {
-		Calendar alarmTime = new GregorianCalendar();
+		Calendar alarmTime = new GregorianCalendar(1,1,1,0,0,0);
 		NOW.setTime(new Date());
 		alarmTime.set(ye,mo,da,ho,mi);
 		if(ye != 60) {
 			return NOW.getTime().before(alarmTime.getTime()) ? alarmTime.getTime() : null;
 		} else {
-			int i = 0;
-			do {
-				alarmTime.set(Calendar.YEAR, NOW.get(Calendar.YEAR+i++));
-			} while(NOW.getTime().before(alarmTime.getTime()));
+			alarmTime.set(Calendar.YEAR, NOW.get(Calendar.YEAR));
+			while(NOW.getTime().before(alarmTime.getTime())) {
+				alarmTime.add(Calendar.YEAR, 1);
+			}
 			return alarmTime.getTime();
 		}
 	}
-
 }
