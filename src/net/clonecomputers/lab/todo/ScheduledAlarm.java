@@ -33,7 +33,7 @@ public class ScheduledAlarm {
 			return NOW.getTime().before(alarmTime.getTime()) ? alarmTime.getTime() : null;
 		} else {
 			alarmTime.set(Calendar.YEAR, NOW.get(Calendar.YEAR));
-			while(NOW.getTime().before(alarmTime.getTime())) {
+			while(!NOW.getTime().before(alarmTime.getTime())) {
 				alarmTime.add(Calendar.YEAR, 1);
 			}
 			return alarmTime.getTime();
