@@ -10,6 +10,7 @@ import org.junit.Test;
 public class MainTest {
 	
 	private final Date testDate = new GregorianCalendar(2013, 8, 4, 12, 14).getTime();
+	private final Date testLeapYearDate = new GregorianCalendar(2016, 1, 29, 12, 14).getTime();
 
 	/*@Test
 	public void test() {
@@ -37,11 +38,28 @@ public class MainTest {
 		assertTrue(testDate.equals(alarmDate));
 	}
 	
+	@Test
+	public void testWildcardYearEqualWithLeapYear() {
+		Date alarmDate = new ScheduledAlarm(ScheduledAlarm.WILDCARD, 1, 29, 12, 14).getSoonestDate();
+		printTestInfo("testWildcardYearEqualWithLeapYear", alarmDate, testLeapYearDate);
+		assertTrue(testLeapYearDate.equals(alarmDate));
+	}
+	
 	private void printTestInfo(String testName, Date alarmDate) {
 		System.out.println("-------------------------------------------");
 		System.out.println("Test: " + testName);
 		System.out.println("    Test Date:  " + testDate);
 		System.out.println("    Alarm Date: " + alarmDate);
+		System.out.println("    Equal?:     " + testDate.equals(alarmDate));
+		System.out.println("-------------------------------------------");
+	}
+	
+	private void printTestInfo(String testName, Date alarmDate, Date theTestDate) {
+		System.out.println("-------------------------------------------");
+		System.out.println("Test: " + testName);
+		System.out.println("    Test Date:  " + theTestDate);
+		System.out.println("    Alarm Date: " + alarmDate);
+		System.out.println("    Equal?:     " + theTestDate.equals(alarmDate));
 		System.out.println("-------------------------------------------");
 	}
 

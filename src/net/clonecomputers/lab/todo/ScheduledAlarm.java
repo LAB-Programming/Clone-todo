@@ -32,10 +32,12 @@ public class ScheduledAlarm {
 		if(ye != 60) {
 			return NOW.getTime().before(alarmTime.getTime()) ? alarmTime.getTime() : null;
 		} else {
+			int date = alarmTime.get(Calendar.DATE);
 			alarmTime.set(Calendar.YEAR, NOW.get(Calendar.YEAR));
-			while(!NOW.getTime().before(alarmTime.getTime())) {
+			while(!NOW.getTime().before(alarmTime.getTime()) || date > alarmTime.getActualMaximum(Calendar.DATE)) {
 				alarmTime.add(Calendar.YEAR, 1);
 			}
+			alarmTime.set(Calendar.DATE, date);
 			return alarmTime.getTime();
 		}
 	}
