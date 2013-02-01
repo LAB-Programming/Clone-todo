@@ -1,35 +1,45 @@
 package net.clonecomputers.lab.todo;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 
 public class Todo {
 	
 	private static JButton removeButton;
 	private static JList alarmList;
+	private static Vector<ScheduledAlarm> alarms = new Vector<ScheduledAlarm>();
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		loadAlarms();
 		EventQueue.invokeLater(new Runnable() {
 
-			@Override
+			//@Override
 			public void run() {
 				initGui();
 			}
 			
 		});
+	}
+	
+	private static void loadAlarms() {
+		//TODO write code here!
 	}
 	
 	private static void initGui() {
@@ -46,7 +56,20 @@ public class Todo {
 	private static JPanel getAlarmListPanel() {
 		JPanel listPanel = new JPanel(new BorderLayout(0, 3));
 		listPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-		//TODO create list for alarmList
+		alarmList = new JList(alarms);
+		alarmList.setFixedCellHeight(80);
+		alarmList.setFixedCellWidth(350);
+		alarmList.setCellRenderer(new ListCellRenderer() {
+			
+			public Component getListCellRendererComponent(JList list, Object value,
+					int index, boolean isSelected, boolean cellHasFocus) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		});
+		alarmList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		alarmList.setDragEnabled(false);
+		alarmList.clearSelection();
 		listPanel.add(alarmList, BorderLayout.NORTH);
 		listPanel.add(getAddRemoveButtons(), BorderLayout.SOUTH);
 		return listPanel;
@@ -58,15 +81,15 @@ public class Todo {
 		removeButton = new JButton("-");
 		addButton.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			//@Override
+			public void actionPerformed(ActionEvent arg0) {
 				addNewAlarm();
 			}
 			
 		});
 		removeButton.addActionListener(new ActionListener() {
 			
-			@Override
+			//@Override
 			public void actionPerformed(ActionEvent e) {
 				removeSelectedAlarm();
 			}
@@ -76,6 +99,7 @@ public class Todo {
 		removeButton.setPreferredSize(new Dimension(20, 20));
 		buttonPanel.add(addButton);
 		buttonPanel.add(removeButton);
+		removeButton.setEnabled(!alarmList.isSelectionEmpty());
 		return buttonPanel;
 	}
 	
