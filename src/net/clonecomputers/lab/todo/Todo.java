@@ -9,14 +9,17 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
+
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
@@ -44,6 +47,7 @@ public class Todo {
 	
 	private static void loadAlarms() {
 		//TODO write code here!
+		alarms.add(new ScheduledAlarm(2013, 5, 1, 12, 0)); //just a test thing
 	}
 	
 	private static void initGui() {
@@ -101,9 +105,21 @@ public class Todo {
 	}
 	
 	private static JPanel getAlarmSettingsPanel() {
-		JPanel settings = new JPanel(/*Layout to be determined*/);
-		//TODO make alarm settings panel
+		JPanel settings = new JPanel();
+		settings.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+		settings.setLayout(new BoxLayout(settings, BoxLayout.Y_AXIS));
+		JPanel namePanel = getNameSettingsPanel();
+		namePanel.setAlignmentY(0.5F);
+		settings.add(namePanel);
 		return settings;
+	}
+	
+	private static JPanel getNameSettingsPanel() {
+		JPanel namePanel = new JPanel();
+		namePanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+		namePanel.add(new JLabel("Alarm Name:")); //TODO NOT DONE
+		namePanel.add(new JTextField());
+		return namePanel;
 	}
 	
 	private static void addNewAlarm() {
