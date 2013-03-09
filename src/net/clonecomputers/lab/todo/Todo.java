@@ -28,6 +28,7 @@ public class Todo {
 	
 	private static JButton removeButton;
 	private static JList alarmList;
+	private static JPanel alarmSettings;
 	private static Vector<ScheduledAlarm> alarms = new Vector<ScheduledAlarm>();
 	
 	/**
@@ -55,7 +56,8 @@ public class Todo {
 		JPanel contentPane = new JPanel(new BorderLayout(30, 0));
 		contentPane.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 		contentPane.add(getAlarmListPanel(), BorderLayout.WEST);
-		contentPane.add(getAlarmSettingsPanel(), BorderLayout.EAST);
+		alarmSettings = getAlarmSettingsPanel();
+		contentPane.add(alarmSettings, BorderLayout.EAST);
 		window.setContentPane(contentPane);
 		window.pack();
 		window.setVisible(true);
@@ -117,9 +119,13 @@ public class Todo {
 	private static JPanel getNameSettingsPanel() {
 		JPanel namePanel = new JPanel();
 		namePanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-		namePanel.add(new JLabel("Alarm Name:")); //TODO NOT DONE
-		namePanel.add(new JTextField());
+		namePanel.add(new JLabel("Alarm Name:"));
+		namePanel.add(new JTextField(10));
 		return namePanel;
+	}
+	
+	private static ScheduledAlarm getScheduledAlarmFromSettingsPanel() {
+		return null; //TODO write me (I use the alarmSettings JPanel to create a new alarm)
 	}
 	
 	private static void addNewAlarm() {
