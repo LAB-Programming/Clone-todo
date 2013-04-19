@@ -1,46 +1,49 @@
 package net.clonecomputers.lab.todo;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.text.DateFormat;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 
 public class Todo {
 	
 	private static JButton removeButton;
 	private static JList alarmList;
-	private static JPanel alarmSettings;
-	private static Vector<ScheduledAlarm> alarms = new Vector<ScheduledAlarm>();
+	private static AlarmSettingsPanel alarmSettings;
+	private static Vector<AlarmListItem> alarms = new Vector<AlarmListItem>();
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		loadAlarms();
+		final Todo todo = new Todo();
 		EventQueue.invokeLater(new Runnable() {
 
 			//@Override
 			public void run() {
-				initGui();
+				todo.initGui();
 			}
 			
 		});
@@ -48,22 +51,28 @@ public class Todo {
 	
 	private static void loadAlarms() {
 		//TODO write code here!
-		alarms.add(new ScheduledAlarm(2013, 5, 1, 12, 0)); //just a test thing
+		alarms.add(new AlarmListItem("Test", new ScheduledAlarm(2013, 5, 1, 12, 0))); //just a test thing
 	}
 	
-	private static void initGui() {
+	private void initGui() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace(); //ho hum we can't use system look and feel
+		}
 		JFrame window = new JFrame("clone todo");
+		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel contentPane = new JPanel(new BorderLayout(30, 0));
 		contentPane.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 		contentPane.add(getAlarmListPanel(), BorderLayout.WEST);
-		alarmSettings = getAlarmSettingsPanel();
+		alarmSettings = new AlarmSettingsPanel(this);
 		contentPane.add(alarmSettings, BorderLayout.EAST);
 		window.setContentPane(contentPane);
 		window.pack();
 		window.setVisible(true);
 	}
 	
-	private static JPanel getAlarmListPanel() {
+	private JPanel getAlarmListPanel() {
 		JPanel listPanel = new JPanel(new BorderLayout(0, 3));
 		listPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 		alarmList = new JList(alarms);
@@ -73,20 +82,26 @@ public class Todo {
 		alarmList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		alarmList.setDragEnabled(false);
 		alarmList.clearSelection();
+		listPanel.addMouseListener(new MouseAdapter(){
+			public void mouseClicked(MouseEvent e) {
+				//TODO: this needs to do something
+				alarmList.clearSelection();
+			}
+		});
 		listPanel.add(alarmList, BorderLayout.NORTH);
 		listPanel.add(getAddRemoveButtons(), BorderLayout.SOUTH);
 		return listPanel;
 	}
 	
-	private static JPanel getAddRemoveButtons() {
+	private JPanel getAddRemoveButtons() {
 		JPanel buttonPanel = new JPanel();
 		JButton addButton = new JButton("+");
 		removeButton = new JButton("-");
 		addButton.addActionListener(new ActionListener() {
 
 			//@Override
-			public void actionPerformed(ActionEvent arg0) {
-				addNewAlarm();
+			public void actionPerformed(ActionEvent e) {
+				openNewAlarm();
 			}
 			
 		});
@@ -106,37 +121,19 @@ public class Todo {
 		return buttonPanel;
 	}
 	
-	private static JPanel getAlarmSettingsPanel() {
-		JPanel settings = new JPanel();
-		settings.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-		settings.setLayout(new BoxLayout(settings, BoxLayout.Y_AXIS));
-		JPanel namePanel = getNameSettingsPanel();
-		namePanel.setAlignmentY(0.5F);
-		settings.add(namePanel);
-		return settings;
-	}
-	
-	private static JPanel getNameSettingsPanel() {
-		JPanel namePanel = new JPanel();
-		namePanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-		namePanel.add(new JLabel("Alarm Name:"));
-		namePanel.add(new JTextField(10));
-		return namePanel;
-	}
-	
-	private static ScheduledAlarm getScheduledAlarmFromSettingsPanel() {
-		return null; //TODO write me (I use the alarmSettings JPanel to create a new alarm)
-	}
-	
-	private static void addNewAlarm() {
+	private void openNewAlarm() {
 		//TODO write this
 	}
 	
-	private static void removeSelectedAlarm() {
+	private void removeSelectedAlarm() {
 		//TODO write this
 	}
 	
-	public static class AlarmListCellRenderer extends Component implements ListCellRenderer {
+	public void saveAlarm(AlarmListItem alarm) {
+		
+	}
+	
+	public class AlarmListCellRenderer extends Component implements ListCellRenderer {
 		
 		private static final long serialVersionUID = -323811720627355823L;
 		
@@ -145,7 +142,7 @@ public class Todo {
 		
 		private boolean isSelected;
 		
-		private ScheduledAlarm cellValue = null;
+		private AlarmListItem cellValue = null;
 		
 		public AlarmListCellRenderer() {
 			img = Toolkit.getDefaultToolkit().createImage("resources/Louis/ListItemBackground.jpg");
@@ -155,8 +152,8 @@ public class Todo {
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
 			this.isSelected = isSelected;
-			if(value instanceof ScheduledAlarm) {
-				cellValue = (ScheduledAlarm)value;
+			if(value instanceof AlarmListItem) {
+				cellValue = (AlarmListItem)value;
 			}
 			return this;
 		}
@@ -168,8 +165,18 @@ public class Todo {
 			} else {
 				g.drawImage(img, 0, 0, null);
 			}
-			if(cellValue == null) return;
-			//TODO draw rest of list component
+			if(cellValue != null) {
+				Font normalFont = g.getFont();
+				Font bigFont = new Font(normalFont.getName(), Font.PLAIN, 15);
+				g.setFont(bigFont);
+				g.setColor(Color.BLACK);
+				g.drawString(cellValue.getName(), 10, 20);
+				g.setFont(normalFont);
+				g.drawString("Alarm: " + cellValue.getAlarm(), 18, 37);
+				g.drawString("Next Alarm Time: " + DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(cellValue.getAlarm().getSoonestDate()), 18, 53);
+			} else {
+				throw new NullPointerException("Cell Value " + cellValue + " is null");
+			}
 		}
 		
 	}

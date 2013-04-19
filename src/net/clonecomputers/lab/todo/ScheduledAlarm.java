@@ -13,16 +13,23 @@ import org.junit.Test;
 
 public class ScheduledAlarm {
 
-	public static final int NO_VALUE = 0;
+	public static final int NO_VALUE = Integer.MIN_VALUE;
 	public static final int WILDCARD = 60;
 	
-	private final Calendar NOW = new GregorianCalendar();
+	private Calendar NOW = new GregorianCalendar();
 	
 	private final int ye;
 	private final int mo;
 	private final int da;
 	private final int ho;
 	private final int mi;
+	
+	/**
+	 * Initializes a blank scheduled alarm (all the fields are set to NO_VALUE)
+	 */
+	public ScheduledAlarm() {
+		this(NO_VALUE,NO_VALUE,NO_VALUE,NO_VALUE,NO_VALUE);
+	}
 	
 	public ScheduledAlarm(int year, int month, int day, int hour, int minute) {
 		ye = year;
@@ -32,12 +39,13 @@ public class ScheduledAlarm {
 		mi = minute;
 	}
 	
-	private Date getSoonestDate() {
+	public Date getSoonestDate() {
 		NOW.setTime(new Date());
 		return getSoonestDateAfter(NOW);
 	}
 	
 	private Date getSoonestDateAfter(Calendar curTime) {
+		if(ye == NO_VALUE || mo == NO_VALUE || da == NO_VALUE || ho == NO_VALUE || mi == NO_VALUE) return null;
 		Calendar alarmTime = new GregorianCalendar(1,1,1,0,0,0);
 		alarmTime.set(ye,mo,da,ho,mi);
 		if(ye == WILDCARD) alarmTime.set(YEAR, curTime.get(YEAR));
@@ -75,6 +83,7 @@ public class ScheduledAlarm {
 		return alarmTime.getTime();
 	}
 	
+	@SuppressWarnings("unused")
 	private Date[] getSoonestDates(int number) {
 		NOW.setTime(new Date());
 		return getSoonestDatesAfter(NOW, number);
@@ -88,6 +97,47 @@ public class ScheduledAlarm {
 			curTime.setTime(dates[i]);
 		}
 		return dates;
+	}
+
+	public int getYear() {
+		return ye;
+	}
+
+	public int getMonth() {
+		return mo;
+	}
+
+	public int getDay() {
+		return da;
+	}
+
+	public int getHour() {
+		return ho;
+	}
+
+	public int getMinute() {
+		return mi;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if(!(o instanceof ScheduledAlarm)) return false;
+		ScheduledAlarm a = (ScheduledAlarm) o;
+		return ye == a.ye && mo == a.mo && da == a.da && ho == a.ho && mi == a.mi;
+	}
+	
+	public boolean isValid() {
+		return getSoonestDate() != null;
+	}
+
+	@Override
+	/**
+	 * This formats the ScheduledAlarm into the form MM/dd/yyyy hh:mm
+	 * Wildcards are displayed as "**"
+	 * @return A string version of the SheduledAlarm
+	 */
+	public String toString() {
+		return new String(mo + "/" + da + "/" + ye + " " + (ho < 10 ? "0" : "") + ho + ":" + (mi < 10 ? "0" : "") + mi).replaceAll("([^0-9])60([^0-9])", "$1**$2");
 	}
 	
 	public class AlarmTest {
