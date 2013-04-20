@@ -66,7 +66,7 @@ public class AlarmSettingsPanel extends JPanel {
 		this.setVisible(true);
 	}
 	
-	public void hide() {
+	public void hidePanel() {
 		this.setVisible(false);
 		origAlarm = null;
 	}
