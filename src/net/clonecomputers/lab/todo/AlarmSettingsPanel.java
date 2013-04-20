@@ -12,6 +12,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
@@ -96,7 +97,8 @@ public class AlarmSettingsPanel extends JPanel {
 		saveButton.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
-				main.saveAlarm(toAlarmListItem());
+				AlarmListItem alarm = toAlarmListItem();
+				if(!(alarm == null)) main.saveAlarm(alarm);
 			}
 		});
 		cancelButton.addActionListener(new ActionListener() {
@@ -113,8 +115,53 @@ public class AlarmSettingsPanel extends JPanel {
 	}
 	
 	public AlarmListItem toAlarmListItem() {
-		//TODO
-		return null;
+		String name = nameField.getText().trim();
+		if(name.isEmpty()) {
+			JOptionPane.showMessageDialog(null, "You must name the alarm", "Error", JOptionPane.WARNING_MESSAGE);
+			return null;
+		}
+		int year = ScheduledAlarm.NO_VALUE;
+		int month = ScheduledAlarm.NO_VALUE;
+		int day = ScheduledAlarm.NO_VALUE;
+		int hour = ScheduledAlarm.NO_VALUE;
+		int minute = ScheduledAlarm.NO_VALUE;
+		String errors = new String();
+		try {
+			year = Integer.parseInt(yearPanel.getValue());
+		} catch(NumberFormatException e) {
+			errors += ", years";
+		}
+		try {
+			month = Integer.parseInt(monthPanel.getValue());
+		} catch(NumberFormatException e) {
+			errors += ", months";
+		}
+		try {
+			day = Integer.parseInt(dayPanel.getValue());
+		} catch(NumberFormatException e) {
+			errors += ", days";
+		}
+		try {
+			hour = Integer.parseInt(hourPanel.getValue());
+		} catch(NumberFormatException e) {
+			errors += ", hours";
+		}
+		try {
+			minute = Integer.parseInt(minutePanel.getValue());
+		} catch(NumberFormatException e) {
+			errors += ", minutes";
+		}
+		if(!errors.isEmpty()) {
+			JOptionPane.showMessageDialog(null, "Inappropriate value for" + errors.substring(1), "Error", JOptionPane.WARNING_MESSAGE);
+			return null;
+		}
+		ScheduledAlarm alarm = new ScheduledAlarm(year, month, day, hour, minute);
+		if(!alarm.isValid()) {
+			JOptionPane.showMessageDialog(null, "Alarm will never go off", "Error", JOptionPane.WARNING_MESSAGE);
+			return null;
+		}
+		return new AlarmListItem(name, alarm);
+		
 	}
 	
 	class DatePanel extends JPanel {
