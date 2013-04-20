@@ -98,7 +98,10 @@ public class AlarmSettingsPanel extends JPanel {
 			
 			public void actionPerformed(ActionEvent e) {
 				AlarmListItem alarm = toAlarmListItem();
-				if(!(alarm == null)) main.saveAlarm(alarm);
+				if(!(alarm == null)) {
+					origAlarm.setFields(alarm);
+					main.saveAlarm(origAlarm);
+				}
 			}
 		});
 		cancelButton.addActionListener(new ActionListener() {

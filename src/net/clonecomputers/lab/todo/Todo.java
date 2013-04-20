@@ -14,6 +14,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DateFormat;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -31,7 +33,7 @@ public class Todo {
 	private static JButton removeButton;
 	private static JList alarmList;
 	private static AlarmSettingsPanel alarmSettings;
-	private static Vector<AlarmListItem> alarms = new Vector<AlarmListItem>();
+	private static Set<AlarmListItem> alarms = new HashSet<AlarmListItem>();
 	
 	/**
 	 * @param args
@@ -75,7 +77,7 @@ public class Todo {
 	private JPanel getAlarmListPanel() {
 		JPanel listPanel = new JPanel(new BorderLayout(0, 3));
 		listPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-		alarmList = new JList(alarms);
+		alarmList = new JList(new Vector<AlarmListItem>(alarms));
 		alarmList.setFixedCellHeight(80);
 		alarmList.setFixedCellWidth(350);
 		alarmList.setCellRenderer(new AlarmListCellRenderer());
@@ -130,7 +132,7 @@ public class Todo {
 	}
 	
 	public void saveAlarm(AlarmListItem alarm) {
-		
+		alarms.add(alarm);
 	}
 	
 	public class AlarmListCellRenderer extends Component implements ListCellRenderer {
