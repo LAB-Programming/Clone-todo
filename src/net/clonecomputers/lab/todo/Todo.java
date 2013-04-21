@@ -11,8 +11,6 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.text.DateFormat;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,20 +25,25 @@ import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 public class Todo {
 	
-	private static JButton removeButton;
-	private static JList alarmList;
-	private static AlarmSettingsPanel alarmSettings;
-	private static Set<AlarmListItem> alarms = new HashSet<AlarmListItem>();
+	private JButton removeButton;
+	private JList alarmList;
+	private AlarmSettingsPanel alarmSettings;
+	private Set<AlarmListItem> alarms = new HashSet<AlarmListItem>();
+	private JFrame window;
+	
+	private int lastSelectedIndex;
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		loadAlarms();
 		final Todo todo = new Todo();
+		loadAlarms(todo);
 		EventQueue.invokeLater(new Runnable() {
 
 			//@Override
@@ -51,9 +54,9 @@ public class Todo {
 		});
 	}
 	
-	private static void loadAlarms() {
+	private static void loadAlarms(Todo todo) {
 		//TODO write code here!
-		alarms.add(new AlarmListItem("Test", new ScheduledAlarm(2013, 5, 1, 12, 0))); //just a test thing
+		todo.alarms.add(new AlarmListItem("Test", new ScheduledAlarm(2013, 5, 1, 12, 0))); //just a test thing
 	}
 	
 	private void initGui() {
@@ -62,7 +65,7 @@ public class Todo {
 		} catch (Exception e) {
 			e.printStackTrace(); //ho hum we can't use system look and feel
 		}
-		JFrame window = new JFrame("clone todo");
+		window = new JFrame("clone todo");
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel contentPane = new JPanel(new BorderLayout(30, 0));
 		contentPane.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
@@ -70,6 +73,7 @@ public class Todo {
 		alarmSettings = new AlarmSettingsPanel(this);
 		contentPane.add(alarmSettings, BorderLayout.EAST);
 		window.setContentPane(contentPane);
+		window.setResizable(false);
 		window.pack();
 		window.setVisible(true);
 	}
@@ -84,12 +88,25 @@ public class Todo {
 		alarmList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		alarmList.setDragEnabled(false);
 		alarmList.clearSelection();
-		listPanel.addMouseListener(new MouseAdapter(){
-			public void mouseClicked(MouseEvent e) {
-				//TODO: this needs to do something
-				alarmList.clearSelection();
+		alarmList.addListSelectionListener(new ListSelectionListener() {
+			
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if(alarmList.isSelectionEmpty()) {
+					if(!alarmSettings.hidePanel()) {
+						alarmList.setSelectedIndex(lastSelectedIndex);
+						removeButton.setEnabled(false);
+					}
+				} else {
+					if(!alarmSettings.show((AlarmListItem) alarmList.getSelectedValue())) {
+						alarmList.setSelectedIndex(lastSelectedIndex);
+						removeButton.setEnabled(true);
+					}
+				}
+				lastSelectedIndex = alarmList.getSelectedIndex();
 			}
 		});
+		lastSelectedIndex = alarmList.getSelectedIndex();
 		listPanel.add(alarmList, BorderLayout.NORTH);
 		listPanel.add(getAddRemoveButtons(), BorderLayout.SOUTH);
 		return listPanel;
@@ -123,16 +140,31 @@ public class Todo {
 		return buttonPanel;
 	}
 	
+	public void clearSelection() {
+		alarmList.clearSelection();
+	}
+	
+	public void pack() {
+		window.pack();
+	}
+	
 	private void openNewAlarm() {
-		//TODO write this
+		if(alarmSettings.show(new AlarmListItem("", new ScheduledAlarm()))) {
+			alarmList.clearSelection();
+		}
 	}
 	
 	private void removeSelectedAlarm() {
-		//TODO write this
+		if(alarmSettings.hidePanel()) {
+			alarms.remove(alarmList.getSelectedValue());
+		}
+		//TODO make this act like you are actually going to delete an alarm (not that you are simply closing the alarm)
 	}
 	
 	public void saveAlarm(AlarmListItem alarm) {
 		alarms.add(alarm);
+		alarmList.updateUI();
+		
 	}
 	
 	public class AlarmListCellRenderer extends Component implements ListCellRenderer {

@@ -1,7 +1,6 @@
 package net.clonecomputers.lab.todo;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -28,7 +27,7 @@ public class AlarmSettingsPanel extends JPanel {
 	private DatePanel hourPanel;
 	private DatePanel minutePanel;
 	private JButton saveButton;
-	private JButton cancelButton;
+	private JButton closeButton;
 	
 	private final Todo main;
 	
@@ -50,11 +49,22 @@ public class AlarmSettingsPanel extends JPanel {
 		add(dayPanel);
 		add(hourPanel);
 		add(minutePanel);
-		add(getSaveCancelButtons());
+		add(getSaveCloseButtons());
 		this.setVisible(false);
 	}
 	
-	public void show(AlarmListItem alarm) {
+	public boolean show(AlarmListItem alarm) {
+		if(!isSaved()) {
+			int response = JOptionPane.showConfirmDialog(null, "The open alarm is not saved<br />Do you wish to save it?");
+			switch(response) {
+			case JOptionPane.CANCEL_OPTION:
+			case JOptionPane.CLOSED_OPTION:
+				return false;
+			case JOptionPane.YES_OPTION:
+				if(!saveAlarm()) return false;
+				break;
+			}
+		}
 		origAlarm = alarm;
 		nameField.setText(alarm.getName());
 		ScheduledAlarm alarmData = alarm.getAlarm();
@@ -64,15 +74,30 @@ public class AlarmSettingsPanel extends JPanel {
 		hourPanel.setValue(Integer.toString(alarmData.getHour()));
 		minutePanel.setValue(Integer.toString(alarmData.getMinute()));
 		this.setVisible(true);
+		main.pack();
+		return true;
 	}
 	
-	public void hidePanel() {
+	public boolean hidePanel() {
+		if(!isSaved()) {
+			int response = JOptionPane.showConfirmDialog(null, "The open alarm is not saved<br />Do you wish to save it?");
+			switch(response) {
+			case JOptionPane.CANCEL_OPTION:
+			case JOptionPane.CLOSED_OPTION:
+				return false;
+			case JOptionPane.YES_OPTION:
+				if(!saveAlarm()) return false;
+				break;
+			}
+		}
 		this.setVisible(false);
+		main.pack();
 		origAlarm = null;
+		return true;
 	}
 	
 	public boolean isSaved() {
-		return this.toAlarmListItem().equals(origAlarm);
+		return origAlarm == null || this.toAlarmListItem().equals(origAlarm);
 	}
 	
 	private JPanel getNameSettingsPanel() {
@@ -86,35 +111,40 @@ public class AlarmSettingsPanel extends JPanel {
 		return namePanel;
 	}
 	
-	private JPanel getSaveCancelButtons() {
+	private JPanel getSaveCloseButtons() {
 		JPanel outsidePanel = new JPanel();
 		outsidePanel.setLayout(new BorderLayout());
 		outsidePanel.setBorder(new OurEtchedBorder(OurEtchedBorder.RAISED, OurEtchedBorder.TOP));
 		JPanel buttonPanel = new JPanel(new BorderLayout());
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(3, 9, 0, 9));
 		saveButton = new JButton("Save");
-		cancelButton = new JButton("Cancel");
+		closeButton = new JButton("Close");
 		saveButton.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
-				AlarmListItem alarm = toAlarmListItem();
-				if(!(alarm == null)) {
-					origAlarm.setFields(alarm);
-					main.saveAlarm(origAlarm);
-				}
+				saveAlarm();
 			}
 		});
-		cancelButton.addActionListener(new ActionListener() {
+		closeButton.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				
+				main.clearSelection();
 			}
 		});
-		buttonPanel.add(cancelButton, BorderLayout.LINE_START);
+		buttonPanel.add(closeButton, BorderLayout.LINE_START);
 		buttonPanel.add(saveButton, BorderLayout.LINE_END);
 		outsidePanel.add(buttonPanel);
 		return outsidePanel;
+	}
+	
+	public boolean saveAlarm() {
+		AlarmListItem alarm = toAlarmListItem();
+		if(!(alarm == null)) {
+			origAlarm.setFields(alarm);
+			main.saveAlarm(origAlarm);
+			return true;
+		}
+		return false;
 	}
 	
 	public AlarmListItem toAlarmListItem() {
@@ -167,6 +197,10 @@ public class AlarmSettingsPanel extends JPanel {
 		
 	}
 	
+	public AlarmListItem getStoredAlarmListItem() {
+		return origAlarm;
+	}
+	
 	class DatePanel extends JPanel {
 		
 		private static final long serialVersionUID = -2399677665800558851L;
@@ -196,7 +230,7 @@ public class AlarmSettingsPanel extends JPanel {
 		}
 
 		public String getValue() {
-			return valueField.getText();
+			return wildcardBtn.isSelected() ? Integer.toString(ScheduledAlarm.WILDCARD) : valueField.getText();
 		}
 
 		public void setValue(String value) {

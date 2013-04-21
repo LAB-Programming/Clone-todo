@@ -137,7 +137,7 @@ public class ScheduledAlarm {
 	 * @return A string version of the SheduledAlarm
 	 */
 	public String toString() {
-		return new String(mo + "/" + da + "/" + ye + " " + (ho < 10 ? "0" : "") + ho + ":" + (mi < 10 ? "0" : "") + mi).replaceAll("([^0-9])60([^0-9])", "$1**$2");
+		return new String(mo + "/" + da + "/" + ye + " " + (ho < 10 ? "0" : "") + ho + ":" + (mi < 10 ? "0" : "") + mi).replaceAll("([^0-9])60([^0-9])", "$1**$2").replaceAll("/\\*\\* ", "/**** ");
 	}
 	
 	public class AlarmTest {
