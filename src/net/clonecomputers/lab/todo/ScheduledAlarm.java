@@ -76,7 +76,7 @@ public class ScheduledAlarm {
 			}
 		}
 		if(mo == WILDCARD) {
-			while(!curTime.getTime().before(alarmTime.getTime()) || da > alarmTime.getActualMaximum(DATE)) {
+			while(!curTime.getTime().before(alarmTime.getTime()) || (da != WILDCARD && da > alarmTime.getActualMaximum(DATE))) {
 				alarmTime.add(MONTH, 1);
 			}
 			alarmTime.set(DATE, da);
