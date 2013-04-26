@@ -18,11 +18,15 @@ public class ScheduledAlarm {
 	
 	private Calendar NOW = new GregorianCalendar();
 	
+	private Date soonestDate = null;
+	
 	private final int ye;
 	private final int mo;
 	private final int da;
 	private final int ho;
 	private final int mi;
+	
+	private Boolean isValid = null;
 	
 	/**
 	 * Initializes a blank scheduled alarm (all the fields are set to NO_VALUE)
@@ -41,7 +45,11 @@ public class ScheduledAlarm {
 	
 	public Date getSoonestDate() {
 		NOW.setTime(new Date());
-		return getSoonestDateAfter(NOW);
+		if(isValid != null && !isValid) return null;
+		if(soonestDate == null || NOW.getTime().after(soonestDate)) {
+			soonestDate = getSoonestDateAfter(NOW);
+		}
+		return soonestDate;
 	}
 	
 	private Date getSoonestDateAfter(Calendar curTime) {
@@ -127,7 +135,10 @@ public class ScheduledAlarm {
 	}
 	
 	public boolean isValid() {
-		return getSoonestDate() != null;
+		if(isValid == null) {
+			isValid = (getSoonestDate() != null);
+		}
+		return isValid;
 	}
 
 	@Override

@@ -178,7 +178,6 @@ public class Todo {
 		private boolean isSelected;
 		
 		private AlarmListItem cellValue = null;
-		private Date soonestDate = null;
 		
 		public AlarmListCellRenderer() {
 			img = Toolkit.getDefaultToolkit().createImage("resources/Louis/ListItemBackground.jpg");
@@ -189,11 +188,7 @@ public class Todo {
 				int index, boolean isSelected, boolean cellHasFocus) {
 			this.isSelected = isSelected;
 			if(value instanceof AlarmListItem) {
-				AlarmListItem newCellValue = (AlarmListItem)value;
-				if(cellValue == null || soonestDate == null || !newCellValue.getAlarm().equals(cellValue.getAlarm())) {
-					soonestDate = newCellValue.getAlarm().getSoonestDate();
-				}
-				cellValue = newCellValue;
+				cellValue = (AlarmListItem) value;
 			}
 			return this;
 		}
@@ -213,7 +208,7 @@ public class Todo {
 				g.drawString(cellValue.getName(), 10, 20);
 				g.setFont(normalFont);
 				g.drawString("Alarm: " + cellValue.getAlarm(), 18, 37);
-				g.drawString("Next Alarm Time: " + DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(soonestDate), 18, 53);
+				g.drawString("Next Alarm Time: " + DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(cellValue.getAlarm().getSoonestDate()), 18, 53);
 			} else {
 				throw new NullPointerException("Cell Value " + cellValue + " is null");
 			}
