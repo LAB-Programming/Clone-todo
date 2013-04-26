@@ -48,6 +48,7 @@ public class ScheduledAlarm {
 		if(isValid != null && !isValid) return null;
 		if(soonestDate == null || NOW.getTime().after(soonestDate)) {
 			soonestDate = getSoonestDateAfter(NOW);
+			isValid = soonestDate != null;
 		}
 		return soonestDate;
 	}
@@ -144,7 +145,7 @@ public class ScheduledAlarm {
 	@Override
 	/**
 	 * This formats the ScheduledAlarm into the form MM/dd/yyyy hh:mm
-	 * Wildcards are displayed as "**"
+	 * Wildcards are displayed as "**" (or "****" for year)
 	 * @return A string version of the SheduledAlarm
 	 */
 	public String toString() {
