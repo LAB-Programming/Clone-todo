@@ -11,13 +11,14 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.text.DateFormat;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Vector;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -33,6 +34,7 @@ public class Todo {
 	
 	private JButton removeButton;
 	private JList alarmList;
+	private DefaultListModel listModel = new DefaultListModel();
 	private AlarmSettingsPanel alarmSettings;
 	private Set<AlarmListItem> alarms = new HashSet<AlarmListItem>();
 	private JFrame window;
@@ -82,7 +84,10 @@ public class Todo {
 	private JPanel getAlarmListPanel() {
 		JPanel listPanel = new JPanel(new BorderLayout(0, 3));
 		listPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-		alarmList = new JList(new Vector<AlarmListItem>(alarms));
+		for(AlarmListItem a : alarms) {
+			listModel.addElement(a);
+		}
+		alarmList = new JList(listModel);
 		alarmList.setFixedCellHeight(80);
 		alarmList.setFixedCellWidth(350);
 		alarmList.setCellRenderer(new AlarmListCellRenderer());
@@ -93,23 +98,32 @@ public class Todo {
 			
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				if(alarmList.isSelectionEmpty()) {
+				boolean isSelectionEmpty = alarmList.isSelectionEmpty();
+				if(isSelectionEmpty) {
 					if(!alarmSettings.hidePanel()) {
 						alarmList.setSelectedIndex(lastSelectedIndex);
-						removeButton.setEnabled(false);
 					}
 				} else {
 					if(!alarmSettings.show((AlarmListItem) alarmList.getSelectedValue())) {
 						alarmList.setSelectedIndex(lastSelectedIndex);
-						removeButton.setEnabled(true);
 					}
 				}
+				removeButton.setEnabled(!isSelectionEmpty);
 				lastSelectedIndex = alarmList.getSelectedIndex();
 			}
 		});
 		lastSelectedIndex = alarmList.getSelectedIndex();
 		listPanel.add(alarmList, BorderLayout.NORTH);
 		listPanel.add(getAddRemoveButtons(), BorderLayout.SOUTH);
+		listPanel.addComponentListener(new ComponentAdapter() {
+			
+			@Override
+			public void componentResized(ComponentEvent e) {
+				Component c = e.getComponent();
+				if(c.getWidth() != 354) c.setSize(354, c.getHeight());
+			}
+			
+		});
 		return listPanel;
 	}
 	
@@ -158,13 +172,19 @@ public class Todo {
 	private void removeSelectedAlarm() {
 		if(alarmSettings.hidePanel()) {
 			alarms.remove(alarmList.getSelectedValue());
+			listModel.remove(alarmList.getSelectedIndex());
+			window.pack();
 		}
 		//TODO make this act like you are actually going to delete an alarm (not that you are simply closing the alarm)
 	}
 	
 	public void saveAlarm(AlarmListItem alarm) {
-		alarms.add(alarm);
+		if(alarms.add(alarm)) {
+			listModel.addElement(alarm);
+			alarmList.setSelectedValue(alarm, true);
+		}
 		alarmList.updateUI();
+		window.pack();
 		
 	}
 	
