@@ -79,15 +79,15 @@ public class ScheduledAlarm {
 			while(!curTime.getTime().before(alarmTime.getTime()) || (da != WILDCARD && da > alarmTime.getActualMaximum(DATE))) {
 				alarmTime.add(MONTH, 1);
 			}
-			alarmTime.set(DATE, da);
+			if(da != WILDCARD) alarmTime.set(DATE, da);
 		}
 		if(ye != WILDCARD) {
 			if(!curTime.getTime().before(alarmTime.getTime())) return null;
 		} else {
-			while(!curTime.getTime().before(alarmTime.getTime()) || da > alarmTime.getActualMaximum(DATE)) {
+			while(!curTime.getTime().before(alarmTime.getTime()) || (da != WILDCARD && da > alarmTime.getActualMaximum(DATE))) {
 				alarmTime.add(YEAR, 1);
 			}
-			alarmTime.set(DATE, da);
+			if(da != WILDCARD) alarmTime.set(DATE, da);
 		}
 		return alarmTime.getTime();
 	}
@@ -149,7 +149,7 @@ public class ScheduledAlarm {
 	 * @return A string version of the SheduledAlarm
 	 */
 	public String toString() {
-		return new String(mo + "/" + da + "/" + ye + " " + (ho < 10 ? "0" : "") + ho + ":" + (mi < 10 ? "0" : "") + mi).replaceAll("([^0-9])60([^0-9])", "$1**$2").replaceAll("/\\*\\* ", "/**** ");
+		return new String(mo + "/" + da + "/" + ye + " " + (ho < 10 ? "0" : "") + ho + ":" + (mi < 10 ? "0" : "") + mi).replaceAll("([^0-9])?60([^0-9])?", "$1**$2").replaceAll("/\\*\\* ", "/**** ");
 	}
 	
 	public class AlarmTest {
