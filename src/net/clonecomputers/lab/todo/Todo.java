@@ -17,15 +17,7 @@ import java.text.DateFormat;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -169,12 +161,11 @@ public class Todo {
 	}
 	
 	private void removeSelectedAlarm() {
-		if(alarmSettings.hidePanel()) {
+		if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this alarm?", "Delete?", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)) {
 			alarms.remove(alarmList.getSelectedValue());
 			listModel.remove(alarmList.getSelectedIndex());
 			window.pack();
 		}
-		//TODO make this act like you are actually going to delete an alarm (not that you are simply closing the alarm)
 	}
 	
 	public void saveAlarm(AlarmListItem alarm) {
