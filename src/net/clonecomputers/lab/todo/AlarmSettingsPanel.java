@@ -102,7 +102,8 @@ public class AlarmSettingsPanel extends JPanel {
 	}
 	
 	public boolean isSaved() {
-		return origAlarm == null || this.toAlarmListItem().equals(origAlarm);
+		AlarmListItem alarm = this.toAlarmListItem(true);
+		return origAlarm == null || (alarm != null && alarm.equals(origAlarm));
 	}
 	
 	private JPanel getNameSettingsPanel() {
@@ -143,7 +144,7 @@ public class AlarmSettingsPanel extends JPanel {
 	}
 	
 	public boolean saveAlarm() {
-		AlarmListItem alarm = toAlarmListItem();
+		AlarmListItem alarm = toAlarmListItem(false);
 		if(!(alarm == null)) {
 			origAlarm.setFields(alarm);
 			main.saveAlarm(origAlarm);
@@ -152,9 +153,9 @@ public class AlarmSettingsPanel extends JPanel {
 		return false;
 	}
 	
-	public AlarmListItem toAlarmListItem() {
+	public AlarmListItem toAlarmListItem(boolean force) {
 		String name = nameField.getText().trim();
-		if(name.isEmpty()) {
+		if(!force && name.isEmpty()) {
 			JOptionPane.showMessageDialog(null, "You must name the alarm", "Error", JOptionPane.WARNING_MESSAGE);
 			return null;
 		}
@@ -189,12 +190,12 @@ public class AlarmSettingsPanel extends JPanel {
 		} catch(NumberFormatException e) {
 			errors += ", minutes";
 		}
-		if(!errors.isEmpty()) {
+		if(!force && !errors.isEmpty()) {
 			JOptionPane.showMessageDialog(null, "Inappropriate value for" + errors.substring(1), "Error", JOptionPane.WARNING_MESSAGE);
 			return null;
 		}
 		ScheduledAlarm alarm = new ScheduledAlarm(year, month, day, hour, minute);
-		if(!alarm.isValid()) {
+		if(!force && !alarm.isValid()) {
 			JOptionPane.showMessageDialog(null, "Alarm will never go off", "Error", JOptionPane.WARNING_MESSAGE);
 			return null;
 		}
