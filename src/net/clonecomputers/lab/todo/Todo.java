@@ -164,9 +164,8 @@ public class Todo {
 	}
 	
 	private void openNewAlarm() {
-		if(alarmSettings.show(new AlarmListItem("", new ScheduledAlarm()))) {
-			alarmList.clearSelection();
-		}
+		alarmList.clearSelection();
+		alarmSettings.show(new AlarmListItem("", new ScheduledAlarm()));
 	}
 	
 	private void removeSelectedAlarm() {
