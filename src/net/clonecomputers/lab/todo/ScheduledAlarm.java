@@ -9,7 +9,7 @@ import java.util.GregorianCalendar;
 
 public class ScheduledAlarm {
 
-	public static final int NO_VALUE = Integer.MIN_VALUE;
+	public static final int NO_VALUE = Integer.MIN_VALUE; //hmm, why did I need NO_VALUE?
 	public static final int WILDCARD = 60;
 	
 	private Calendar NOW = new GregorianCalendar();
@@ -32,6 +32,15 @@ public class ScheduledAlarm {
 	}
 	
 	public ScheduledAlarm(int year, int month, int day, int hour, int minute) {
+		//sanity checks
+		if(month != WILDCARD && (month < 0 || month > 11))
+			throw new IllegalArgumentException("month must be within 0 and 11");
+		if(!isDayWithinMonth(year, month, day))
+			throw new IllegalArgumentException("day is invalid");
+		if(hour != WILDCARD && (hour < 0 || hour > 23)) 
+			throw new IllegalArgumentException("hour must be within 0 and 23");
+		if(minute != WILDCARD && (minute < 0 || minute > 59)) 
+			throw new IllegalArgumentException("minute must be within 0 and 59");
 		ye = year;
 		mo = month;
 		da = day;
@@ -51,13 +60,60 @@ public class ScheduledAlarm {
 	
 	private Date getSoonestDateAfter(Calendar curTime) {
 		if(ye == NO_VALUE || mo == NO_VALUE || da == NO_VALUE || ho == NO_VALUE || mi == NO_VALUE) return null;
-		Calendar alarmTime = new GregorianCalendar(1,1,1,0,0,0);
-		alarmTime.set(ye,mo,da,ho,mi);
-		if(ye == WILDCARD) alarmTime.set(YEAR, curTime.get(YEAR));
-		if(mo == WILDCARD) alarmTime.set(MONTH, curTime.get(MONTH));
-		if(da == WILDCARD) alarmTime.set(DATE, curTime.get(MONTH));
-		if(ho == WILDCARD) alarmTime.set(HOUR_OF_DAY, curTime.get(HOUR_OF_DAY));
+		Calendar alarmTime = getQuickEarlyDateFrom(curTime);
+		if(alarmTime == null) return null;
+		if(alarmTime.after(curTime)) return alarmTime.getTime();
+		
 		if(mi == WILDCARD) {
+			while(alarmTime.get(MINUTE) < 59) {
+				alarmTime.add(MINUTE, 1);
+				if(alarmTime.after(curTime)) return alarmTime.getTime();
+			}
+			alarmTime.set(MINUTE, 0);
+		}
+		
+		if(ho == WILDCARD) {
+			while(alarmTime.get(HOUR_OF_DAY) < 23) {
+				alarmTime.add(HOUR_OF_DAY, 1);
+				if(alarmTime.after(curTime)) return alarmTime.getTime();
+			}
+			alarmTime.set(HOUR_OF_DAY, 0);
+		}
+		
+		if(da == WILDCARD) {
+			while(alarmTime.get(DATE) < alarmTime.getActualMaximum(DATE)) {
+				alarmTime.add(DATE, 1);
+				if(alarmTime.after(curTime)) return alarmTime.getTime();
+			}
+			alarmTime.set(DATE, 1);
+		}
+		
+		if(mo == WILDCARD) {
+			int month = alarmTime.get(MONTH);
+			while(month < 11) {
+				++month;
+				if(isDayWithinMonth(alarmTime.get(YEAR), month, alarmTime.get(DATE))) {
+					alarmTime.set(MONTH, month);
+					if(alarmTime.after(curTime)) return alarmTime.getTime();
+				}
+			}
+			alarmTime.set(MONTH, 0);
+		}
+		
+		if(ye == WILDCARD) {
+			int year = alarmTime.get(YEAR);
+			while(!alarmTime.after(curTime)) {
+				++year;
+				if(isDayWithinMonth(year, alarmTime.get(MONTH), alarmTime.get(DATE))) {
+					alarmTime.set(YEAR, year);
+				}
+			}
+		}
+		
+		if(!alarmTime.after(curTime)) return null;
+		
+		return alarmTime.getTime();
+		/*if(mi == WILDCARD) {
 			alarmTime.set(MINUTE, curTime.get(MINUTE));
 			alarmTime.add(MINUTE, 1);
 		}
@@ -84,8 +140,98 @@ public class ScheduledAlarm {
 				alarmTime.add(YEAR, 1);
 			}
 			if(da != WILDCARD) alarmTime.set(DATE, da);
+		}*/
+	}
+	
+	
+	private Calendar getQuickEarlyDateFrom(Calendar curTime) {
+		
+		int year;
+		if(ye == WILDCARD) {
+			year = curTime.get(YEAR);
+			if(da == 29 && mo == 1) {
+				while(year % 4 != 0 || (year % 100 == 0 && year % 400 != 0)) {
+					++year; //I could use math instead of a loop I think
+				}
+			}
+		} else if(ye < curTime.get(YEAR)) {
+				return null;
+		} else {
+			year = ye;
 		}
-		return alarmTime.getTime();
+		
+		int month = mo;
+		if(mo == WILDCARD) {
+			if(year == curTime.get(YEAR)) {
+				month = curTime.get(MONTH);
+				while(!isDayWithinMonth(year, month, da)) { //This should not cause month to get bigger than 11 (since December has 31 days)
+					++month;
+				}
+			} else {
+				month = 0;
+			}
+		}
+		
+		int day = da;
+		if(da == WILDCARD) {
+			if(year == curTime.get(YEAR) && month == curTime.get(MONTH)) {
+				day = curTime.get(DATE);
+			} else {
+				day = 1;
+			}
+		}
+		
+		int hour = ho;
+		if(ho == WILDCARD) {
+			if(year == curTime.get(YEAR) && month == curTime.get(MONTH) && day == curTime.get(DATE)) {
+				hour = curTime.get(HOUR_OF_DAY);
+			} else {
+				hour = 0;
+			}
+		}
+		
+		int minute = mi;
+		if(mi == WILDCARD) {
+			if(year == curTime.get(YEAR) && month == curTime.get(MONTH) && day == curTime.get(DATE) && hour == curTime.get(HOUR_OF_DAY)) {
+				minute = curTime.get(MINUTE);
+			} else {
+				minute = 0;
+			}
+		}
+		
+		return new GregorianCalendar(year, month, day, hour, minute);
+	}
+	
+	public static boolean isDayWithinMonth(int year, int month, int day) {
+		if(month != WILDCARD && (month < 0 || month > 11))
+			throw new IllegalArgumentException("Invalid month");
+		if(day == WILDCARD) return true;
+		if(day < 1 || day > 31) return false;
+		switch(month) {
+			case 0:
+			case 2:
+			case 4:
+			case 6:
+			case 7:
+			case 9:
+			case 11:
+			case WILDCARD:
+				return true;
+			case 3:
+			case 5:
+			case 8:
+			case 10:
+				if(day > 30)
+					throw new IllegalArgumentException("for Apr, Jun, Sep, Nov, day cannot be greater than 30");
+				return true;
+			case 1:
+				if(day > 29 || (day > 28 && (year != WILDCARD && (year % 4 != 0 || (year % 100 == 0 && year % 400 != 0)))))
+					//checking for a defined year whether Feb has 28 or 29 days
+					return false;
+				return true;
+			default:
+				throw new IllegalArgumentException("This shouldn't happen: Invalid month");
+		}
 	}
 	
 	@SuppressWarnings("unused")
