@@ -105,14 +105,17 @@ public class Todo {
 			}
 		});
 		lastSelectedIndex = alarmList.getSelectedIndex();
-		listPanel.add(alarmList, BorderLayout.NORTH);
+		JScrollPane scrollingList = new JScrollPane(alarmList, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollingList.setPreferredSize(new Dimension(370, 224));
+		listPanel.add(scrollingList, BorderLayout.NORTH);
 		listPanel.add(getAddRemoveButtons(), BorderLayout.SOUTH);
 		listPanel.addComponentListener(new ComponentAdapter() {
 			
 			@Override
 			public void componentResized(ComponentEvent e) {
 				Component c = e.getComponent();
-				if(c.getWidth() != 354) c.setSize(354, c.getHeight());
+				if(c.getWidth() != 372) c.setSize(372, c.getHeight()); //354
 			}
 			
 		});

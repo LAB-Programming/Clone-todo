@@ -23,12 +23,12 @@ Year, month, day, hour, or minute can all be designated as a
 * GUI item to modify alarms
 * Ability to save alarms
 * Buttons to add and remove alarms
+* Make the Alarm List Scrollable
 
 ####Short Term
-* Make the Alarm List Scrollable
-* Thoroughly test ScheduledAlarm
 * Make Clone todo schedule alarms with cron
 * Write a script for cron to run when an alarm goes off
+* Thoroughly test ScheduledAlarm
 * Have Clone todo save and load alarms
 * Fix various GUI bugs
 
