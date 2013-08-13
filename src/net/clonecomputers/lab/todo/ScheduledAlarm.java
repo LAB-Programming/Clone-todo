@@ -9,7 +9,7 @@ import java.util.GregorianCalendar;
 
 public class ScheduledAlarm {
 
-	public static final int NO_VALUE = Integer.MIN_VALUE; //hmm, why did I need NO_VALUE?
+	public static final int NO_VALUE = Integer.MIN_VALUE; //Used because ScheduledAlarm does all checking on dates
 	public static final int WILDCARD = 60;
 	
 	private Calendar NOW = new GregorianCalendar();
@@ -33,14 +33,14 @@ public class ScheduledAlarm {
 	
 	public ScheduledAlarm(int year, int month, int day, int hour, int minute) {
 		//sanity checks
-		if(month != WILDCARD && (month < 0 || month > 11))
-			throw new IllegalArgumentException("month must be within 0 and 11");
-		if(!isDayWithinMonth(year, month, day))
-			throw new IllegalArgumentException("day is invalid");
-		if(hour != WILDCARD && (hour < 0 || hour > 23)) 
-			throw new IllegalArgumentException("hour must be within 0 and 23");
-		if(minute != WILDCARD && (minute < 0 || minute > 59)) 
-			throw new IllegalArgumentException("minute must be within 0 and 59");
+		if(
+				(year == NO_VALUE) || (month == NO_VALUE) || (day == NO_VALUE) || (hour == NO_VALUE) || (minute == NO_VALUE) || // if any of them have no value
+				(month != WILDCARD && (month < 0 || month > 11)) || // or if month is out of bounds
+				(!isDayWithinMonth(year, month, day)) || // or if day is out of bounds (month specific)
+				(hour != WILDCARD && (hour < 0 || hour > 23)) || // or if hour is out of bounds
+				(minute != WILDCARD && (minute < 0 || minute > 59)) // or if minute is out of bounds
+		) isValid = false; // then this is not a valid alarm
+		
 		ye = year;
 		mo = month;
 		da = day;
@@ -59,7 +59,6 @@ public class ScheduledAlarm {
 	}
 	
 	private Date getSoonestDateAfter(Calendar curTime) {
-		if(ye == NO_VALUE || mo == NO_VALUE || da == NO_VALUE || ho == NO_VALUE || mi == NO_VALUE) return null;
 		Calendar alarmTime = getQuickEarlyDateFrom(curTime);
 		if(alarmTime == null) return null;
 		if(alarmTime.after(curTime)) return alarmTime.getTime();
@@ -291,7 +290,7 @@ public class ScheduledAlarm {
 	 * @return A string version of the SheduledAlarm
 	 */
 	public String toString() {
-		return new String(mo + "/" + da + "/" + ye + " " + (ho < 10 ? "0" : "") + ho + ":" + (mi < 10 ? "0" : "") + mi).replaceAll("([^0-9])?60([^0-9])?", "$1**$2").replaceAll("/\\*\\* ", "/**** ");
+		return new String((mo + 1) + "/" + da + "/" + ye + " " + (ho < 10 ? "0" : "") + ho + ":" + (mi < 10 ? "0" : "") + mi).replaceAll("([^0-9])?60([^0-9])?", "$1**$2").replaceAll("/\\*\\* ", "/**** ");
 	}
 
 }

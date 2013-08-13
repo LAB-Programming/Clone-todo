@@ -69,7 +69,7 @@ public class AlarmSettingsPanel extends JPanel {
 		nameField.setText(alarm.getName());
 		ScheduledAlarm alarmData = alarm.getAlarm();
 		String year = alarmData.getYear() != ScheduledAlarm.NO_VALUE ? Integer.toString(alarmData.getYear()) : "";
-		String month = alarmData.getMonth() != ScheduledAlarm.NO_VALUE ? Integer.toString(alarmData.getMonth()) : "";
+		String month = alarmData.getMonth() != ScheduledAlarm.NO_VALUE ? Integer.toString(alarmData.getMonth() + 1) : "";
 		String day = alarmData.getDay() != ScheduledAlarm.NO_VALUE ? Integer.toString(alarmData.getDay()) : "";
 		String hour = alarmData.getHour() != ScheduledAlarm.NO_VALUE ? Integer.toString(alarmData.getHour()) : "";
 		String minute = alarmData.getMinute() != ScheduledAlarm.NO_VALUE ? Integer.toString(alarmData.getMinute()) : "";
@@ -85,7 +85,7 @@ public class AlarmSettingsPanel extends JPanel {
 	
 	public boolean hidePanel() {
 		if(!isSaved()) {
-			int response = JOptionPane.showConfirmDialog(null, "The open alarm is not saved<br />Do you wish to save it?");
+			int response = JOptionPane.showConfirmDialog(null, "The open alarm is not saved\nDo you wish to save it?");
 			switch(response) {
 			case JOptionPane.CANCEL_OPTION:
 			case JOptionPane.CLOSED_OPTION:
@@ -171,7 +171,7 @@ public class AlarmSettingsPanel extends JPanel {
 			errors += ", years";
 		}
 		try {
-			month = Integer.parseInt(monthPanel.getValue());
+			month = Integer.parseInt(monthPanel.getValue()) - 1;
 		} catch(NumberFormatException e) {
 			errors += ", months";
 		}
@@ -196,7 +196,7 @@ public class AlarmSettingsPanel extends JPanel {
 		}
 		ScheduledAlarm alarm = new ScheduledAlarm(year, month, day, hour, minute);
 		if(!force && !alarm.isValid()) {
-			JOptionPane.showMessageDialog(null, "Alarm will never go off", "Error", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Some date fields are out of bounds or alarm will never go off", "Error", JOptionPane.WARNING_MESSAGE);
 			return null;
 		}
 		return new AlarmListItem(name, alarm);

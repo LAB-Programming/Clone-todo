@@ -51,7 +51,7 @@ public class Todo {
 	
 	private static void loadAlarms(Todo todo) {
 		//TODO write code here!
-		todo.alarms.add(new AlarmListItem("Test", new ScheduledAlarm(2013, 5, 1, 12, 0))); //just a test thing
+		todo.alarms.add(new AlarmListItem("Test", new ScheduledAlarm(2013, 9, 1, 12, 0))); //just a test thing
 	}
 	
 	private void initGui() {
