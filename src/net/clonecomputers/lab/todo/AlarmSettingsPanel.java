@@ -55,7 +55,7 @@ public class AlarmSettingsPanel extends JPanel {
 	
 	public boolean show(AlarmListItem alarm) {
 		if(!isSaved()) {
-			int response = JOptionPane.showConfirmDialog(null, "The open alarm is not saved<br />Do you wish to save it?");
+			int response = JOptionPane.showConfirmDialog(null, "The open alarm is not saved\nDo you wish to save it?");
 			switch(response) {
 			case JOptionPane.CANCEL_OPTION:
 			case JOptionPane.CLOSED_OPTION:
